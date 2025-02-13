@@ -107,8 +107,8 @@ impl Bitboard {
 
 #[derive(Clone, Copy)]
 pub struct Board {
-    pub bitboards: [Bitboard; 12], // DEBUG
-    pub occupancies: [Bitboard; 3], 
+    bitboards: [Bitboard; 12],
+    occupancies: [Bitboard; 3], 
     mailbox: [Piece; 64],
     castling: u8,
     ep_square: Square,
