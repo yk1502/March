@@ -1,7 +1,7 @@
 <div align="center">
 
 # March
-### March is a work-in-progress UCI-compatible chess engine written in Rust.
+#### March is a work-in-progress UCI-compatible chess engine written in Rust.
 
 </div>
 
