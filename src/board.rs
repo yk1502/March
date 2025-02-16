@@ -156,6 +156,14 @@ impl Board {
     }
 
     pub fn parse_fen(&mut self, fen: &str) {
+        self.bitboards = [Bitboard::new(); 12];
+        self.occupancies = [Bitboard::new(); 3];
+        self.mailbox = [Piece::None; 64];
+        self.castling = 0b0000;
+        self.ep_square = Square::None;
+        self.side = Colour::White;
+        self.opp_side = Colour::Black;
+
         let fen_parts: Vec<&str> = fen.split(' ').collect();
 
         // Parse side
