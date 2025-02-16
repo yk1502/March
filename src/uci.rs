@@ -34,46 +34,34 @@ fn ucinewgame(cmd: &str, board: &mut Board) {
 fn position(cmd: &str, board: &mut Board) {
     let split_cmd: Vec<&str> = cmd.trim().split(" ").collect();
     let mut fen = String::new();
-    let mut moves: Vec<&str> = Vec::new();
-    let mut is_fen = false;
-    let mut is_moves = false;
 
-    if split_cmd[0] == "position" {
-        for i in split_cmd {
+    // Set startpos
+    if cmd.contains("startpos") {
+        board.parse_fen(STARTPOS);
+    }
 
-            if i == "moves" {
-                is_moves = true;
-                continue;
+    // Collect fen
+    if let Some(fen_idx) = split_cmd.iter().position(|&x| x == "fen") {
+        
+        for i in (fen_idx + 1)..split_cmd.len() {
+
+            if split_cmd[i] == "moves" {
+                break;
             }
 
-            if is_moves {
-                moves.push(i);
-                continue;
-            }
-
-            if is_fen {
-                fen.push_str(i);
-                fen.push_str(" ");
-                continue;
-            }
-
-            if i == "startpos" {
-                board.parse_fen(STARTPOS);
-            }
-
-            if i == "fen" {
-                is_fen = true;
-            }
+            fen.push_str(split_cmd[i]);
+            fen.push_str(" ");
         }
 
-        if is_fen {
-            board.parse_fen(fen.as_str().trim());
-        }
+        board.parse_fen(fen.as_str().trim());
+    }
 
-        if is_moves {
-            for i in moves.iter() {
-                board.make_move(board.parse_move(i.trim()));
-            }
+    
+    if let Some(moves_idx) = split_cmd.iter().position(|&x| x == "moves") {
+
+        // Push moves on board
+        for i in (moves_idx + 1)..split_cmd.len() {
+            board.make_move(board.parse_move(split_cmd[i].trim()));
         }
     }
 }
