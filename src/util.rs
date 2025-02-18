@@ -1,4 +1,4 @@
-
+use crate::moves::Move;
 
 
 pub const STARTPOS: &str = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -21,4 +21,11 @@ pub fn gen_rand() -> u64 {
         STATE
     }
    
+}
+
+
+pub fn display_uci_move(mv: Move) {
+    print!("bestmove ");
+    mv.display();
+    println!();
 }

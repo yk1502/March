@@ -3,7 +3,10 @@ use std::time::Duration;
 
 use crate::board::Board;
 use crate::moves::MoveList;
-use crate::util::gen_rand;
+use crate::util::{gen_rand, display_uci_move};
+
+
+
 
 
 pub fn get_rand_move(board: &Board) {
@@ -20,8 +23,14 @@ pub fn get_rand_move(board: &Board) {
     }
 
     println!("info score 0");
-    thread::sleep(Duration::from_secs_f32(0.01));
-    print!("bestmove ");
-    valid_ml.get_move(gen_rand() as usize % valid_ml.move_count()).display();
-    println!();
+    thread::sleep(Duration::from_secs_f32(0.00));
+    display_uci_move(valid_ml.get_move(gen_rand() as usize % valid_ml.move_count()));
+}
+
+
+
+
+
+pub fn search_pos(board: Board, stm_time: u32, stm_inc: u32) {
+    get_rand_move(&board);
 }
