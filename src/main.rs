@@ -6,6 +6,8 @@ mod magic;
 mod moves;
 mod perft;
 mod uci;
+mod util;
+mod search;
 
 
 fn init() {

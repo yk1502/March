@@ -1,7 +1,8 @@
+use std::ops::{BitAnd, BitOr, Not};
+
 use crate::attack::{get_pawn_attack, get_knight_attack, get_bishop_attack, get_rook_attack, get_queen_attack, get_king_attack};
 use crate::types::{Colour, Direction, Piece, PieceType, Square};
 use crate::moves::{Move, MoveList};
-use std::ops::{BitAnd, BitOr, Not};
 
 
 #[derive(Copy, Clone, PartialEq)]

@@ -1,7 +1,7 @@
-use crate::board::Bitboard;
-
 use crate::attack::{gen_bishop_attacks, gen_rook_attacks, BISHOP_MASK, ROOK_MASK};
+use crate::board::Bitboard;
 use crate::types::Square;
+use crate::util::gen_rand;
 
 
 
@@ -78,18 +78,7 @@ pub const ROOK_REL: [u8; 64] = [
  
 
 
-pub fn gen_rand() -> u64 {
 
-    static mut STATE: u64 = 123456789;
-
-    unsafe {
-        STATE ^= STATE << 13;
-        STATE ^= STATE >> 17;
-        STATE ^= STATE << 5;
-        STATE
-    }
-   
-}
 
 
 pub fn gen_occ(index: u64, mut mask: Bitboard) -> Bitboard {

@@ -1,10 +1,8 @@
 use std::io;
+
+use crate::util::STARTPOS;
 use crate::board::Board;
-use crate::perft::STARTPOS;
-use crate::moves::MoveList;
-use std::thread;
-use std::time::Duration;
-use crate::magic::gen_rand;
+use crate::search::get_rand_move;
 
 
 
@@ -70,24 +68,8 @@ fn position(cmd: &str, board: &mut Board) {
 fn go(cmd: &str, board: Board) {
     let split_cmd: Vec<&str> = cmd.trim().split(" ").collect();
 
-    let ml = board.gen_moves();
-    let mut valid_ml = MoveList::new();
-
     if split_cmd[0] == "go" {
-        for i in 0..ml.move_count() {
-            let mv = ml.get_move(i);
-            let mut clone_board = board.clone();
-
-            if clone_board.make_move(mv) {
-                valid_ml.add_move(mv);
-            }
-        }
-
-        println!("info score 0");
-        thread::sleep(Duration::from_secs_f32(0.3));
-        print!("bestmove ");
-        valid_ml.get_move(gen_rand() as usize % valid_ml.move_count()).display();
-        println!();
+        get_rand_move(&board);
     }
 }
 
