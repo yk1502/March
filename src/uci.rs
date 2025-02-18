@@ -2,8 +2,8 @@ use std::io;
 
 use crate::util::STARTPOS;
 use crate::board::Board;
-use crate::search::get_rand_move;
-
+use crate::search::search_pos;
+use crate::types::Colour;
 
 
 fn isready(cmd: &str) {
@@ -68,8 +68,44 @@ fn position(cmd: &str, board: &mut Board) {
 fn go(cmd: &str, board: Board) {
     let split_cmd: Vec<&str> = cmd.trim().split(" ").collect();
 
+    let mut stm_time = 8000;
+    let mut stm_inc = 800;
+
     if split_cmd[0] == "go" {
-        get_rand_move(&board);
+
+        if let Some(wtime) = split_cmd.iter().position(|&x| x == "wtime") {
+            let wtime = split_cmd[wtime + 1].parse::<u32>().expect("Failed");
+
+            if board.get_side() == Colour::White {
+                stm_time = wtime;
+            }
+        }
+
+        if let Some(btime) = split_cmd.iter().position(|&x| x == "btime") {
+            let btime = split_cmd[btime + 1].parse::<u32>().expect("Failed");
+
+            if board.get_side() == Colour::Black {
+                stm_time = btime;
+            }
+        }
+
+        if let Some(winc) = split_cmd.iter().position(|&x| x == "winc") {
+            let winc = split_cmd[winc + 1].parse::<u32>().expect("Failed");
+
+            if board.get_side() == Colour::White {
+                stm_inc = winc;
+            }
+        }
+
+        if let Some(binc) = split_cmd.iter().position(|&x| x == "binc") {
+            let binc = split_cmd[binc + 1].parse::<u32>().expect("Failed");
+
+            if board.get_side() == Colour::Black {
+                stm_inc = binc;
+            }
+        }
+
+        search_pos(board, stm_time, stm_inc);
     }
 }
 

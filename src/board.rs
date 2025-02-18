@@ -156,6 +156,10 @@ impl Board {
         (self.side, self.opp_side) = (self.opp_side, self.side);
     }
 
+    pub fn get_side(&self) -> Colour {
+        self.side
+    }
+
     pub fn parse_fen(&mut self, fen: &str) {
         self.bitboards = [Bitboard::new(); 12];
         self.occupancies = [Bitboard::new(); 3];
