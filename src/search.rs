@@ -29,7 +29,7 @@ pub fn get_rand_move(board: &Board) {
 }
 
 
-pub fn negamax(board: &Board, depth: i32, si: &mut SearchInfo) -> i32 {
+pub fn negamax(board: &Board, depth: i32, mut alpha: i32, mut beta: i32, si: &mut SearchInfo) -> i32 {
 
     if depth == 0 {
         return evaluate(board);
@@ -53,7 +53,7 @@ pub fn negamax(board: &Board, depth: i32, si: &mut SearchInfo) -> i32 {
         }
 
         si.update();
-        let score = -negamax(&new_board, depth - 1, si);
+        let score = -negamax(&new_board, depth - 1, -beta, -alpha, si);
         si.revert();
 
         if score > best_score {
@@ -61,6 +61,14 @@ pub fn negamax(board: &Board, depth: i32, si: &mut SearchInfo) -> i32 {
 
             if si.is_root() {
                 si.best_move = mv;
+            }
+
+            if score > alpha {
+                alpha = score;
+
+                if alpha >= beta {
+                    break;
+                }
             }
         }
     }
@@ -83,7 +91,7 @@ pub fn search_pos(board: Board, stm_time: u32, stm_inc: u32) {
     let mut best_move = Move::new();
 
     for d in 1..256 {
-        let score = negamax(&board, d, &mut si);
+        let score = negamax(&board, d, -MAX_SCORE, MAX_SCORE, &mut si);
 
         if si.stop_early {
             break;
