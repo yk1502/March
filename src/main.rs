@@ -8,6 +8,7 @@ mod perft;
 mod uci;
 mod util;
 mod search;
+mod eval;
 
 
 fn init() {

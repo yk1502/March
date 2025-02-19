@@ -1,5 +1,6 @@
-use std::mem::transmute;
+use std::{mem::transmute, time::Instant};
 
+use crate::moves::Move;
 
 
 
@@ -264,6 +265,52 @@ impl Direction {
 
     pub fn value(&self) -> i16 {
         *self as i16
+    }
+}
+
+
+#[derive(Copy, Clone)]
+pub struct SearchInfo {
+    start: Instant,
+    time_left: u128,
+    pub best_move: Move,
+    pub ply: i32,
+    pub nodes: i32,
+    pub stop_early: bool,
+}
+
+impl SearchInfo {
+
+    pub fn new(time_left: u128) -> Self {
+        SearchInfo {
+            ply: 0,
+            best_move: Move::new(),
+            start: Instant::now(),
+            time_left: time_left,
+            nodes: 0,
+            stop_early: false,
+        }
+    }
+
+    pub fn get_time(&self) -> u128 {
+        self.start.elapsed().as_millis()
+    }
+
+    pub fn should_stop(&self) -> bool {
+        self.get_time() > self.time_left
+    }
+
+    pub fn is_root(&self) -> bool {
+        self.ply == 0
+    }
+
+    pub fn update(&mut self) {
+        self.ply += 1;
+        self.nodes += 1;
+    }
+
+    pub fn revert(&mut self) {
+        self.ply -= 1;
     }
 }
 

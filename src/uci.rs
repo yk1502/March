@@ -68,8 +68,8 @@ fn position(cmd: &str, board: &mut Board) {
 fn go(cmd: &str, board: Board) {
     let split_cmd: Vec<&str> = cmd.trim().split(" ").collect();
 
-    let mut stm_time = 8000;
-    let mut stm_inc = 800;
+    let mut stm_time = 0;
+    let mut stm_inc = 0;
 
     if split_cmd[0] == "go" {
 

@@ -160,6 +160,10 @@ impl Board {
         self.side
     }
 
+    pub fn get_piece_count(&self, piece: Piece) -> u8 {
+        self.bitboards[piece.as_index()].get_bit_count()
+    }
+
     pub fn parse_fen(&mut self, fen: &str) {
         self.bitboards = [Bitboard::new(); 12];
         self.occupancies = [Bitboard::new(); 3];
