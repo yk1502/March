@@ -25,13 +25,14 @@ pub fn qsearch(board: &Board, mut alpha: i32, beta: i32, si: &mut SearchInfo) ->
         alpha = eval;
     }
 
-    let ml = board.gen_moves(true);
+    let mut ml = board.gen_moves(true);
+    ml.score_moves();
    
     let mut best_score = eval;
 
     for i in 0..ml.move_count() {
      
-        let mv = ml.get_move(i);
+        let mv = ml.pick_move(i);
         let mut new_board = board.clone();
 
         if !new_board.make_move(mv) {

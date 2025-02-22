@@ -119,3 +119,31 @@ Ptnml(0-2): [19, 82, 192, 164, 60]
 LLR: 2.97 (-2.94, 2.94) [0.00, 5.00]
 --------------------------------------------------
 ```
+
+
+
+### Update 6
+- MVV-LVA in QSearch
+
+```
+info depth 1 nodes 20 time 0 score cp 0
+info depth 2 nodes 83 time 0 score cp 0
+info depth 3 nodes 610 time 0 score cp 0
+info depth 4 nodes 2321 time 1 score cp 0
+info depth 5 nodes 15808 time 5 score cp 0
+info depth 6 nodes 65631 time 17 score cp 0
+info depth 7 nodes 478047 time 51 score cp 0
+info depth 8 nodes 2258730 time 353 score cp 0
+bestmove a2a3
+```
+
+```
+--------------------------------------------------
+Results of new vs old (8+0.08, 1t, 1MB, UHO_2024_8mvs_big_+080_+099.pgn):
+Elo: 26.78 +/- 8.94, nElo: 53.69 +/- 17.85
+LOS: 100.00 %, DrawRatio: 63.32 %, PairsRatio: 1.93
+Games: 1456, Wins: 315, Losses: 203, Draws: 938, Points: 784.0 (53.85 %)
+Ptnml(0-2): [5, 86, 461, 144, 32]
+LLR: 2.96 (-2.94, 2.94) [0.00, 5.00]
+--------------------------------------------------
+```
