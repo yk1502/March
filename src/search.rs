@@ -8,11 +8,62 @@ use crate::eval::evaluate;
 
 
 
+pub fn qsearch(board: &Board, mut alpha: i32, beta: i32, si: &mut SearchInfo) -> i32 {
+
+    let eval = evaluate(board);
+
+    if eval >= beta {
+        return eval;
+    }
+
+    if si.should_stop() {
+        si.stop_early = true;
+        return 0;
+    }
+
+    if eval > alpha {
+        alpha = eval;
+    }
+
+    let ml = board.gen_moves(true);
+   
+    let mut best_score = eval;
+
+    for i in 0..ml.move_count() {
+     
+        let mv = ml.get_move(i);
+        let mut new_board = board.clone();
+
+        if !new_board.make_move(mv) {
+            continue;
+        }
+
+        si.update();
+        let score = -qsearch(&new_board, -beta, -alpha, si);
+        si.revert();
+        
+        if score > best_score {
+            best_score = score;
+
+            if score > alpha {
+                alpha = score;  
+
+                if score >= beta {
+                    break;
+                }   
+            }   
+        }    
+    }
+
+    best_score
+}
+
+
 
 pub fn negamax(board: &Board, depth: i32, mut alpha: i32, beta: i32, si: &mut SearchInfo) -> i32 {
 
     if depth == 0 {
-        return evaluate(board);
+        return qsearch(board, alpha, beta, si);
     }
 
     if si.should_stop() {
@@ -20,7 +71,7 @@ pub fn negamax(board: &Board, depth: i32, mut alpha: i32, beta: i32, si: &mut Se
         return 0;
     }
     
-    let mut ml = board.gen_moves();
+    let mut ml = board.gen_moves(false);
     ml.score_moves();
 
     let mut best_score = -MAX_SCORE;

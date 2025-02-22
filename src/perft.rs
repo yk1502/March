@@ -38,8 +38,8 @@ pub fn perft(board: Board, depth: u32, ply: u32, nodes: &mut u128, move_nodes: b
         *nodes += 1;
         return;
     }
-
-    let ml = board.gen_moves();
+    
+    let ml = board.gen_moves(false);
     let mut cumulative = 0;
 
     for i in 0..ml.move_count() {

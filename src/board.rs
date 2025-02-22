@@ -269,7 +269,7 @@ impl Board {
 
         let mut mv = Move::new();
 
-        let ml = self.gen_moves();
+        let ml = self.gen_moves(false);
         
         if move_str.len() == 5 {
             promote = Piece::from_char(move_str.chars().last().unwrap()).of_type();
@@ -290,7 +290,7 @@ impl Board {
         mv
     }
 
-    pub fn gen_moves(&self) -> MoveList {
+    pub fn gen_moves(&self, noisy_only: bool) -> MoveList {
 
         let mut ml = MoveList::new();
         
@@ -308,7 +308,7 @@ impl Board {
 
             
             // Castling
-            if piece.of_type() == PieceType::King {
+            if !noisy_only && piece.of_type() == PieceType::King {
                 if self.side == Colour::White && !self.is_square_attacked(Square::E1) {
                     // White
                     let king_side_blockers = !self.is_square_occupied(Square::F1) && !self.is_square_occupied(Square::G1);
@@ -361,7 +361,7 @@ impl Board {
 
                 if piece.of_type() == PieceType::Pawn {
                     // Pawn pushes
-                    if !(lsb_sq.on_north_edge() || lsb_sq.on_south_edge() || piece.on_promote_square(lsb_sq)) {
+                    if !noisy_only && !(lsb_sq.on_north_edge() || lsb_sq.on_south_edge() || piece.on_promote_square(lsb_sq)) {
                         let mut target_sq = lsb_sq.to_front(self.side);
 
                         // Single pawn push
@@ -377,7 +377,7 @@ impl Board {
                     }
 
                     // Pawn promotions
-                    if piece.on_promote_square(lsb_sq) {
+                    if !noisy_only && piece.on_promote_square(lsb_sq) {
                         let target_sq = lsb_sq.to_front(self.side);
 
                         if !self.is_square_occupied(target_sq) {
@@ -406,6 +406,10 @@ impl Board {
                 while !attack_bb.is_empty() {
                     let target_sq = Square::from_u8(attack_bb.pop_lsb());
                     let capture_piece = self.mailbox[target_sq.as_index()];
+
+                    if capture_piece == Piece::None && noisy_only {
+                        continue;
+                    }
                     
                     if piece.of_type() == PieceType::Pawn {
 

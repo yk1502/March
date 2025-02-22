@@ -93,3 +93,29 @@ Ptnml(0-2): [1, 28, 97, 118, 59]
 LLR: 2.95 (-2.94, 2.94) [0.00, 5.00]
 --------------------------------------------------
 ```
+
+
+
+### Update 5
+- QSearch
+
+```
+info depth 1 nodes 20 time 0 score cp 0
+info depth 2 nodes 83 time 0 score cp 0
+info depth 3 nodes 610 time 0 score cp 0
+info depth 4 nodes 2330 time 1 score cp 0
+info depth 5 nodes 15833 time 4 score cp 0
+info depth 6 nodes 65918 time 18 score cp 0
+info depth 7 nodes 480478 time 52 score cp 0
+```
+
+```
+--------------------------------------------------
+Results of new vs old (8+0.08, 1t, 1MB, UHO_2024_8mvs_big_+080_+099.pgn):
+Elo: 55.58 +/- 15.27, nElo: 78.47 +/- 21.18
+LOS: 100.00 %, DrawRatio: 37.14 %, PairsRatio: 2.22
+Games: 1034, Wins: 347, Losses: 183, Draws: 504, Points: 599.0 (57.93 %)
+Ptnml(0-2): [19, 82, 192, 164, 60]
+LLR: 2.97 (-2.94, 2.94) [0.00, 5.00]
+--------------------------------------------------
+```
