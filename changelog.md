@@ -66,3 +66,30 @@ Ptnml(0-2): [0, 7, 34, 131, 171]
 LLR: 2.95 (-2.94, 2.94) [0.00, 5.00]
 --------------------------------------------------
 ```
+
+
+
+### Update 4
+- MVV-LVA
+
+```
+info depth 1 nodes 20 time 0 score cp 0
+info depth 2 nodes 79 time 0 score cp 0
+info depth 3 nodes 664 time 0 score cp 0
+info depth 4 nodes 2098 time 0 score cp 0
+info depth 5 nodes 26010 time 5 score cp 100
+info depth 6 nodes 359287 time 29 score cp -100
+info depth 7 nodes 991023 time 68 score cp 100
+bestmove a2a3
+```
+
+```
+--------------------------------------------------
+Results of new vs old (8+0.08, 1t, 1MB, UHO_2024_8mvs_big_+080_+099.pgn):
+Elo: 123.00 +/- 19.95, nElo: 185.39 +/- 27.66
+LOS: 100.00 %, DrawRatio: 32.01 %, PairsRatio: 6.10
+Games: 606, Wins: 267, Losses: 61, Draws: 278, Points: 406.0 (67.00 %)
+Ptnml(0-2): [1, 28, 97, 118, 59]
+LLR: 2.95 (-2.94, 2.94) [0.00, 5.00]
+--------------------------------------------------
+```

@@ -4,6 +4,7 @@ use crate::types::{Square, Piece};
 
 #[derive(Clone, Copy)]
 pub struct Move {
+    score: i32,
     source: Square,
     target: Square,
     piece: Piece,
@@ -17,6 +18,7 @@ pub struct Move {
 impl Move {
     pub fn new() -> Self {
         Move {
+            score: 0,
             source: Square::None,
             target: Square::None,
             piece: Piece::None,
@@ -37,6 +39,7 @@ impl Move {
         double: bool, 
         ep: bool) -> Self {
             Move {
+                score: 0,
                 source: source,
                 target: target,
                 piece: piece,
@@ -92,6 +95,10 @@ impl Move {
         self.ep
     }
 
+    pub fn set_score(&mut self, score: i32) {
+        self.score = score;
+    }
+
     pub fn display(&self) {
         let source = self.source.to_str();
         let target = self.target.to_str();
@@ -119,6 +126,33 @@ impl MoveList {
             moves: [Move::new(); 256],
             count: 0,
         }
+    }
+
+    pub fn score_moves(&mut self) {
+        for i in 0..self.count {
+            if self.moves[i].is_capture() {
+                let mv = &self.moves[i];
+                let score = mv.get_capture().of_type() as i32 - mv.get_piece().of_type() as i32;
+                self.moves[i].set_score(score);
+            } else {
+                self.moves[i].set_score(-999999999);
+            }
+        }
+    }
+
+    pub fn pick_move(&mut self, idx: usize) -> Move {
+        let mut best_score = self.moves[idx].score;
+        let mut best_index = idx;
+
+        for i in idx..self.count {
+            if self.moves[i].score > best_score {
+                best_score = self.moves[i].score;
+                best_index = i;
+            }
+        }
+        
+        self.moves.swap(idx, best_index);
+        self.moves[idx]
     }
 
     pub fn add_move(&mut self, mv: Move) {

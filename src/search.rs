@@ -1,35 +1,15 @@
-use std::thread;
-use std::time::Duration;
 
 use crate::board::Board;
-use crate::moves::{Move, MoveList};
+use crate::moves::Move;
 use crate::types::SearchInfo;
-use crate::util::{display_uci_move, gen_rand, MAX_SCORE, MATE_SCORE};
+use crate::util::{display_uci_move, MAX_SCORE, MATE_SCORE};
 use crate::eval::evaluate;
 
 
 
 
-pub fn get_rand_move(board: &Board) {
-    let ml = board.gen_moves();
-    let mut valid_ml = MoveList::new();
 
-    for i in 0..ml.move_count() {
-        let mv = ml.get_move(i);
-        let mut clone_board = board.clone();
-
-        if clone_board.make_move(mv) {
-            valid_ml.add_move(mv);
-        }
-    }
-
-    println!("info score 0");
-    thread::sleep(Duration::from_secs_f32(0.00));
-    display_uci_move(valid_ml.get_move(gen_rand() as usize % valid_ml.move_count()));
-}
-
-
-pub fn negamax(board: &Board, depth: i32, mut alpha: i32, mut beta: i32, si: &mut SearchInfo) -> i32 {
+pub fn negamax(board: &Board, depth: i32, mut alpha: i32, beta: i32, si: &mut SearchInfo) -> i32 {
 
     if depth == 0 {
         return evaluate(board);
@@ -40,12 +20,14 @@ pub fn negamax(board: &Board, depth: i32, mut alpha: i32, mut beta: i32, si: &mu
         return 0;
     }
     
-    let ml = board.gen_moves();
+    let mut ml = board.gen_moves();
+    ml.score_moves();
+
     let mut best_score = -MAX_SCORE;
 
     for i in 0..ml.move_count() {
 
-        let mv = ml.get_move(i);
+        let mv = ml.pick_move(i);
         let mut new_board = board.clone();
 
         if !new_board.make_move(mv) {
