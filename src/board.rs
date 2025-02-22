@@ -500,47 +500,27 @@ impl Board {
         }
 
         if mv.is_castle() {
-            if castle == 0b1000 {
-                self.bitboards[Piece::WR.as_index()].pop_bit(Square::H1);
-                self.bitboards[Piece::WR.as_index()].set_bit(Square::F1);
-                self.occupancies[0].pop_bit(Square::H1);
-                self.occupancies[0].set_bit(Square::F1);
-
-                self.mailbox[Square::H1.as_index()] = Piece::None;
-                self.mailbox[Square::F1.as_index()] = Piece::WR;
-                self.occupancies[2].pop_bit(Square::H1);
-                self.occupancies[2].set_bit(Square::F1);
+            let (rook, rook_src, rook_target) = if castle == 0b1000 {
+                (Piece::WR, Square::H1, Square::F1)
             } else if castle == 0b0100 {
-                self.bitboards[Piece::WR.as_index()].pop_bit(Square::A1);
-                self.bitboards[Piece::WR.as_index()].set_bit(Square::D1);
-                self.occupancies[0].pop_bit(Square::A1);
-                self.occupancies[0].set_bit(Square::D1);
-
-                self.mailbox[Square::A1.as_index()] = Piece::None;
-                self.mailbox[Square::D1.as_index()] = Piece::WR;
-                self.occupancies[2].pop_bit(Square::A1);
-                self.occupancies[2].set_bit(Square::D1);
+                (Piece::WR, Square::A1, Square::D1)
             } else if castle == 0b0010 {
-                self.bitboards[Piece::BR.as_index()].pop_bit(Square::H8);
-                self.bitboards[Piece::BR.as_index()].set_bit(Square::F8);
-                self.occupancies[1].pop_bit(Square::H8);
-                self.occupancies[1].set_bit(Square::F8);
-
-                self.mailbox[Square::H8.as_index()] = Piece::None;
-                self.mailbox[Square::F8.as_index()] = Piece::BR;
-                self.occupancies[2].pop_bit(Square::H8);
-                self.occupancies[2].set_bit(Square::F8);
+                (Piece::BR, Square::H8, Square::F8)
             } else if castle == 0b0001 {
-                self.bitboards[Piece::BR.as_index()].pop_bit(Square::A8);
-                self.bitboards[Piece::BR.as_index()].set_bit(Square::D8);
-                self.occupancies[1].pop_bit(Square::A8);
-                self.occupancies[1].set_bit(Square::D8);
+                (Piece::BR, Square::A8, Square::D8)
+            } else {
+                (Piece::None, Square::None, Square::None)
+            };
 
-                self.mailbox[Square::A8.as_index()] = Piece::None;
-                self.mailbox[Square::D8.as_index()] = Piece::BR;
-                self.occupancies[2].pop_bit(Square::A8);
-                self.occupancies[2].set_bit(Square::D8);
-            }
+            self.bitboards[rook.as_index()].pop_bit(rook_src);
+            self.bitboards[rook.as_index()].set_bit(rook_target);
+            self.occupancies[rook.colour().as_index()].pop_bit(rook_src);
+            self.occupancies[rook.colour().as_index()].set_bit(rook_target);
+
+            self.mailbox[rook_src.as_index()] = Piece::None;
+            self.mailbox[rook_target.as_index()] = rook;
+            self.occupancies[2].pop_bit(rook_src);
+            self.occupancies[2].set_bit(rook_target);
         }
 
         self.ep_square = Square::None;
@@ -568,7 +548,7 @@ impl Board {
         if self.in_check() {
             false
         } else {
-            (self.side, self.opp_side) = (self.opp_side, self.side);
+            self.flip_side();
             true
         }
 
