@@ -147,3 +147,31 @@ Ptnml(0-2): [5, 86, 461, 144, 32]
 LLR: 2.96 (-2.94, 2.94) [0.00, 5.00]
 --------------------------------------------------
 ```
+
+
+
+### Update 7
+- Repetition detection
+
+```
+info depth 1 nodes 20 time 0 score cp 0
+info depth 2 nodes 83 time 0 score cp 0
+info depth 3 nodes 610 time 0 score cp 0
+info depth 4 nodes 2321 time 2 score cp 0
+info depth 5 nodes 15808 time 10 score cp 0
+info depth 6 nodes 65631 time 30 score cp 0
+info depth 7 nodes 478047 time 66 score cp 0
+info depth 8 nodes 2258730 time 371 score cp 0
+bestmove a2a3
+```
+
+```
+--------------------------------------------------
+Results of new vs old (8+0.08, 1t, 1MB, UHO_2024_8mvs_big_+080_+099.pgn):
+Elo: 18.66 +/- 7.59, nElo: 36.07 +/- 14.65
+LOS: 100.00 %, DrawRatio: 59.85 %, PairsRatio: 1.84
+Games: 2162, Wins: 653, Losses: 537, Draws: 972, Points: 1139.0 (52.68 %)
+Ptnml(0-2): [32, 121, 647, 261, 20]
+LLR: 2.95 (-2.94, 2.94) [0.00, 5.00]
+--------------------------------------------------
+```

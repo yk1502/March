@@ -269,10 +269,10 @@ impl Direction {
 }
 
 
-#[derive(Copy, Clone)]
 pub struct SearchInfo {
     start: Instant,
     time_left: u128,
+    pub stack: Vec<u64>,
     pub best_move: Move,
     pub ply: i32,
     pub nodes: i32,
@@ -281,15 +281,25 @@ pub struct SearchInfo {
 
 impl SearchInfo {
 
-    pub fn new(time_left: u128) -> Self {
+    pub fn new() -> Self {
         SearchInfo {
             ply: 0,
             best_move: Move::new(),
+            stack: Vec::new(),
             start: Instant::now(),
-            time_left: time_left,
+            time_left: 0,
             nodes: 0,
             stop_early: false,
         }
+    }
+
+    pub fn set_time(&mut self, time_left: u128) {
+        self.ply = 0;
+        self.best_move = Move::new();
+        self.start = Instant::now();
+        self.time_left = time_left;
+        self.nodes = 0;
+        self.stop_early = false;
     }
 
     pub fn get_time(&self) -> u128 {

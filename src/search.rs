@@ -8,6 +8,21 @@ use crate::eval::evaluate;
 
 
 
+pub fn is_repetition(si: &mut SearchInfo, hash: u64) -> bool {
+    let mut counter = 0;
+    for &h in si.stack.iter().rev().skip(1).step_by(2) {
+        if h == hash {
+            counter += 1;
+            if counter >= 2 {
+                return true;
+            }
+        }
+    }
+    
+    false
+}
+
+
 pub fn qsearch(board: &Board, mut alpha: i32, beta: i32, si: &mut SearchInfo) -> i32 {
 
     let eval = evaluate(board);
@@ -63,6 +78,10 @@ pub fn qsearch(board: &Board, mut alpha: i32, beta: i32, si: &mut SearchInfo) ->
 
 pub fn negamax(board: &Board, depth: i32, mut alpha: i32, beta: i32, si: &mut SearchInfo) -> i32 {
 
+    if !si.is_root() && is_repetition(si, board.hash()) {
+        return 0;
+    }
+
     if depth == 0 {
         return qsearch(board, alpha, beta, si);
     }
@@ -76,6 +95,7 @@ pub fn negamax(board: &Board, depth: i32, mut alpha: i32, beta: i32, si: &mut Se
     ml.score_moves();
 
     let mut best_score = -MAX_SCORE;
+    si.stack.push(board.hash());
 
     for i in 0..ml.move_count() {
 
@@ -107,6 +127,8 @@ pub fn negamax(board: &Board, depth: i32, mut alpha: i32, beta: i32, si: &mut Se
         }
     }
 
+    si.stack.pop();
+
     if best_score == -MAX_SCORE {
         if board.in_check() {
             return -MATE_SCORE + si.ply;
@@ -119,13 +141,13 @@ pub fn negamax(board: &Board, depth: i32, mut alpha: i32, beta: i32, si: &mut Se
 }
 
 
-pub fn search_pos(board: Board, stm_time: u32, stm_inc: u32) {
+pub fn search_pos(board: Board, stm_time: u32, stm_inc: u32, si: &mut SearchInfo) {
     let time_left = (stm_time / 20) + (stm_inc / 2);
-    let mut si = SearchInfo::new(time_left as u128);
+    si.set_time(time_left as u128);
     let mut best_move = Move::new();
 
     for d in 1..256 {
-        let score = negamax(&board, d, -MAX_SCORE, MAX_SCORE, &mut si);
+        let score = negamax(&board, d, -MAX_SCORE, MAX_SCORE, si);
 
         if si.stop_early {
             break;

@@ -3,7 +3,7 @@ use std::io;
 use crate::util::STARTPOS;
 use crate::board::Board;
 use crate::search::search_pos;
-use crate::types::Colour;
+use crate::types::{Colour, SearchInfo};
 
 
 fn isready(cmd: &str) {
@@ -29,7 +29,7 @@ fn ucinewgame(cmd: &str, board: &mut Board) {
 }
 
 
-fn position(cmd: &str, board: &mut Board) {
+fn position(cmd: &str, board: &mut Board, si: &mut SearchInfo) {
     let split_cmd: Vec<&str> = cmd.trim().split(" ").collect();
     let mut fen = String::new();
 
@@ -56,16 +56,18 @@ fn position(cmd: &str, board: &mut Board) {
 
     
     if let Some(moves_idx) = split_cmd.iter().position(|&x| x == "moves") {
+        si.stack.clear();
 
         // Push moves on board
         for i in (moves_idx + 1)..split_cmd.len() {
+            si.stack.push(board.hash());
             board.make_move(board.parse_move(split_cmd[i].trim()));
         }
     }
 }
 
 
-fn go(cmd: &str, board: Board) {
+fn go(cmd: &str, board: Board, si: &mut SearchInfo) {
     let split_cmd: Vec<&str> = cmd.trim().split(" ").collect();
 
     let mut stm_time = 0;
@@ -105,7 +107,7 @@ fn go(cmd: &str, board: Board) {
             }
         }
 
-        search_pos(board, stm_time, stm_inc);
+        search_pos(board, stm_time, stm_inc, si);
     }
 }
 
@@ -125,6 +127,7 @@ pub fn uci_loop() {
 
     println!("March by yk1502");
     let mut board = Board::new();
+    let mut si = SearchInfo::new();
     
     loop {
         let mut raw_cmd = String::new();
@@ -138,8 +141,8 @@ pub fn uci_loop() {
         isready(cmd);
         uci(cmd);
         ucinewgame(cmd, &mut board);
-        position(cmd, &mut board);
-        go(cmd, board);
+        position(cmd, &mut board, &mut si);
+        go(cmd, board, &mut si);
         display(cmd, &board);
     }
 

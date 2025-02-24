@@ -3,6 +3,7 @@ use std::ops::{BitAnd, BitOr, Not};
 use crate::attack::{get_pawn_attack, get_knight_attack, get_bishop_attack, get_rook_attack, get_queen_attack, get_king_attack};
 use crate::types::{Colour, Direction, Piece, PieceType, Square};
 use crate::moves::{Move, MoveList};
+use crate::util::XorShift;
 
 
 #[derive(Copy, Clone, PartialEq)]
@@ -110,6 +111,7 @@ impl Bitboard {
 pub struct Board {
     bitboards: [Bitboard; 12],
     occupancies: [Bitboard; 3], 
+    hash: u64,
     mailbox: [Piece; 64],
     castling: u8,
     ep_square: Square,
@@ -123,6 +125,7 @@ impl Board {
         Board {
             bitboards: [Bitboard::new(); 12],
             occupancies: [Bitboard::new(); 3],
+            hash: 0,
             mailbox: [Piece::None; 64],
             castling: 0b0000,
             ep_square: Square::None,
@@ -222,6 +225,30 @@ impl Board {
         }
 
         self.occupancies[2] = self.occupancies[0] | self.occupancies[1];
+        self.hash = self.gen_hash();
+    }
+
+    pub fn hash(&self) -> u64 {
+        self.hash
+    }
+
+    pub fn gen_hash(&mut self) -> u64 {
+        for i in 0..12 {
+            let mut bb = self.bitboards[i];
+            while !bb.is_empty() {
+                self.hash ^= HASH_KEY.piece[i][bb.pop_lsb() as usize];
+            }
+        }
+
+        self.hash ^= HASH_KEY.castling[self.castling as usize];
+
+        self.hash ^= HASH_KEY.ep[self.ep_square.as_index() % 8];
+
+        if self.side == Colour::Black {
+            self.hash ^= HASH_KEY.side;
+        }
+
+        self.hash   
     }
 
     pub fn is_square_occupied(&self, sq: Square) -> bool {
@@ -450,17 +477,33 @@ impl Board {
         let castle = mv.get_castle();
         let capture_piece = mv.get_capture();
 
-        self.bitboards[piece.as_index()].pop_bit(source);
-        self.bitboards[piece.as_index()].set_bit(target);
+        let piece_index = piece.as_index();
+        let capture_index = capture_piece.as_index();
+        let target_index = target.as_index();
+        let source_index = source.as_index();
+
+
+        self.bitboards[piece_index].pop_bit(source);
+        self.bitboards[piece_index].set_bit(target);
         
         self.occupancies[self.side.as_index()].pop_bit(source);
         self.occupancies[self.side.as_index()].set_bit(target);
 
-        self.mailbox[source.as_index()] = Piece::None;
-        self.mailbox[target.as_index()] = piece;
+        self.mailbox[source_index] = Piece::None;
+        self.mailbox[target_index] = piece;
 
         self.occupancies[2].pop_bit(source);
         self.occupancies[2].set_bit(target);
+
+        
+
+        self.hash ^= HASH_KEY.piece[piece_index][source_index];
+        self.hash ^= HASH_KEY.piece[piece_index][target_index];
+        self.hash ^= HASH_KEY.castling[self.castling as usize];
+
+        if self.ep_square != Square::None {
+            self.hash ^= HASH_KEY.ep[self.ep_square.as_index() % 8];
+        }
 
         if piece == Piece::WK {
             self.castling &= 0b0011;
@@ -479,17 +522,19 @@ impl Board {
         }
 
         if mv.is_capture() && !mv.is_ep() {
-            self.bitboards[capture_piece.as_index()].pop_bit(target);
+            self.bitboards[capture_index].pop_bit(target);
             self.occupancies[capture_piece.colour().as_index()].pop_bit(target);
+            self.hash ^= HASH_KEY.piece[capture_index][target_index];
         }
 
         if mv.is_ep() {
             let ep_captured_pawn = target.to_front(self.opp_side);
-            self.bitboards[capture_piece.as_index()].pop_bit(ep_captured_pawn);
+            self.bitboards[capture_index].pop_bit(ep_captured_pawn);
             self.occupancies[capture_piece.colour().as_index()].pop_bit(ep_captured_pawn);
             
             self.mailbox[ep_captured_pawn.as_index()] = Piece::None;
             self.occupancies[2].pop_bit(ep_captured_pawn);
+            self.hash ^= HASH_KEY.piece[capture_index][ep_captured_pawn.as_index()];
         } 
 
         if mv.is_promote() {
@@ -497,6 +542,8 @@ impl Board {
             self.bitboards[promote.as_index()].set_bit(target);
             
             self.mailbox[target.as_index()] = promote;
+            self.hash ^= HASH_KEY.piece[piece_index][target_index];
+            self.hash ^= HASH_KEY.piece[promote.as_index()][target_index];
         }
 
         if mv.is_castle() {
@@ -512,15 +559,22 @@ impl Board {
                 (Piece::None, Square::None, Square::None)
             };
 
-            self.bitboards[rook.as_index()].pop_bit(rook_src);
-            self.bitboards[rook.as_index()].set_bit(rook_target);
+            let rook_index = rook.as_index();
+            let rook_src_index = rook_src.as_index();
+            let rook_target_index = rook_target.as_index();
+
+            self.bitboards[rook_index].pop_bit(rook_src);
+            self.bitboards[rook_index].set_bit(rook_target);
             self.occupancies[rook.colour().as_index()].pop_bit(rook_src);
             self.occupancies[rook.colour().as_index()].set_bit(rook_target);
 
-            self.mailbox[rook_src.as_index()] = Piece::None;
-            self.mailbox[rook_target.as_index()] = rook;
+            self.mailbox[rook_src_index] = Piece::None;
+            self.mailbox[rook_target_index] = rook;
             self.occupancies[2].pop_bit(rook_src);
             self.occupancies[2].set_bit(rook_target);
+
+            self.hash ^= HASH_KEY.piece[rook.as_index()][rook_src_index];
+            self.hash ^= HASH_KEY.piece[rook.as_index()][rook_target_index];
         }
 
         self.ep_square = Square::None;
@@ -549,8 +603,74 @@ impl Board {
             false
         } else {
             self.flip_side();
+
+            if self.ep_square != Square::None {
+                self.hash ^= HASH_KEY.ep[self.ep_square.as_index() % 8];
+            }
+            self.hash ^= HASH_KEY.castling[self.castling as usize];
+            self.hash ^= HASH_KEY.side;
+
             true
         }
 
+    }
+}
+
+
+pub static HASH_KEY: HashKey = HashKey::gen_hash_key();
+
+
+pub struct HashKey {
+    pub piece: [[u64; 64]; 12],
+    pub castling: [u64; 16],
+    pub ep: [u64; 8],
+    pub side: u64,
+}
+
+impl HashKey {
+
+    pub const fn new() -> Self {
+        HashKey {
+            piece: [[0; 64]; 12],
+            castling: [0; 16],
+            ep: [0; 8],
+            side: 0,
+        }
+    }
+
+    pub const fn gen_hash_key() -> Self {
+
+        let mut state = XorShift::new();
+        let mut keys = Self::new();
+
+        // Piece keys
+        let mut i = 0;
+        while i < 12 {
+            let mut j = 0;
+            while j < 64 {
+                keys.piece[i][j] = state.next();
+                j += 1;
+            }
+            i += 1;
+        }
+
+        // Castling keys
+        let mut i = 0;
+        while i < 16 {
+            keys.castling[i] = state.next();
+            i += 1;
+        }
+
+        // EP Keys
+        let mut i = 0;
+        while i < 8 {
+            keys.ep[i] = state.next();
+            i += 1;
+        }
+
+        // Side keys
+        keys.side = state.next();
+
+        keys
     }
 }

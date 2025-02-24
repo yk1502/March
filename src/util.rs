@@ -13,18 +13,23 @@ pub const MAX_SCORE: i32 = 50000;
 pub const MATE_SCORE: i32 = 49000;
 
 
+pub struct XorShift {
+    state: u64,
+}
 
-pub fn gen_rand() -> u64 {
-
-    static mut STATE: u64 = 123456789;
-
-    unsafe {
-        STATE ^= STATE << 13;
-        STATE ^= STATE >> 17;
-        STATE ^= STATE << 5;
-        STATE
+impl XorShift {
+    pub const fn new() -> Self {
+        XorShift {
+            state: 123456789,
+        }
     }
-   
+
+    pub const fn next(&mut self) -> u64 {
+        self.state ^= self.state << 13;
+        self.state ^= self.state >> 17;
+        self.state ^= self.state << 5;
+        self.state 
+    }
 }
 
 

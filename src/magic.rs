@@ -1,7 +1,7 @@
 use crate::attack::{gen_bishop_attacks, gen_rook_attacks, BISHOP_MASK, ROOK_MASK};
 use crate::board::Bitboard;
 use crate::types::Square;
-use crate::util::gen_rand;
+use crate::util::XorShift;
 
 
 
@@ -105,11 +105,13 @@ pub fn gen_magic() {
     let mut bishop_attacks: [[Bitboard; 512]; 64] = [[Bitboard::new(); 512]; 64];
     let mut rook_attacks: [[Bitboard; 4096]; 64] = [[Bitboard::new(); 4096]; 64];
 
+    let mut state = XorShift::new();
+
     println!("Generating bishop magics...");
     let mut sq = 0;
     while sq != 64 {
         bishop_attacks[sq as usize] = [Bitboard::new(); 512];
-        let magic = gen_rand() & gen_rand() & gen_rand();
+        let magic = state.next() & state.next() & state.next();
         let mut success = true;
         for i in 0..512 {
             let occ = gen_occ(i as u64, BISHOP_MASK[sq]);
@@ -142,7 +144,7 @@ pub fn gen_magic() {
     let mut sq = 0;
     while sq != 64 {
         rook_attacks[sq as usize] = [Bitboard::new(); 4096];
-        let magic = gen_rand() & gen_rand() & gen_rand();
+        let magic = state.next() & state.next() & state.next();
         let mut success = true;
         for i in 0..4096 {
             let occ = gen_occ(i as u64, ROOK_MASK[sq]);
